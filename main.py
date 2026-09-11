@@ -283,7 +283,6 @@ st.write("이곳에 앞으로 새로운 시간 관련 그래프를 추가합니�
 st.info(
 "💡 이 그래프로 알 수 있는 것: 앞으로 추가할 그래프에서 발견할 수 있는 내용을 한 문장으로 작성합니다."
 )
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -474,3 +473,133 @@ daily_total.nlargest(3, "일관객")
 
 fig3 = px.area(
 daily_total,
+x="날짜",
+y="일관객",
+title="날짜별 박스오피스 TOP 10 일관객 합계",
+labels={
+"날짜": "날짜",
+"일관객": "TOP 10 일관객 합계"
+}
+)
+
+# 그래프 위에 상위 3일 표시
+
+fig3.add_scatter(
+x=top3_days["날짜"],
+y=top3_days["일관객"],
+mode="markers+text",
+text=top3_days["날짜"].dt.strftime("%Y-%m-%d"),
+textposition="top center",
+name="관객 합계 상위 3일",
+hovertemplate=(
+"<b>날짜</b>: %{x|%Y-%m-%d}<br>"
+"<b>TOP 10 관객 합계</b>: %{y:,}명"
+"<extra></extra>"
+)
+)
+
+fig3.update_layout(
+xaxis_title="날짜",
+yaxis_title="TOP 10 일관객 합계(명)",
+hovermode="x unified"
+)
+
+# 영역 부분 마우스 정보 설정
+
+fig3.update_traces(
+hovertemplate=(
+"<b>날짜</b>: %{x|%Y-%m-%d}<br>"
+"<b>TOP 10 관객 합계</b>: %{y:,}명"
+"<extra></extra>"
+),
+selector=dict(type="scatter")
+)
+
+st.plotly_chart(
+fig3,
+use_container_width=True
+)
+
+st.info(
+"💡 이 그래프로 알 수 있는 것: 1년 동안 박스오피스 TOP 10 영화 전체의 관객 수가 언제 가장 많았는지 확인하고, 특히 관객이 집중된 상위 3일을 찾아볼 수 있습니다."
+)
+# ==================================================
+
+# 그래프 4
+
+# ==================================================
+
+st.divider()
+
+st.header("🏆 그래프 4. 이 기간 관객 수 TOP 10 영화")
+
+st.write(
+"영화별로 이 기간 동안의 일관객을 모두 더해 관객 수가 가장 많은 영화 10편을 비교합니다."
+)
+
+# 영화별 일관객 합계와 10위권에 등장한 날 수 계산
+
+movie_summary = (
+df.groupby("영화명")
+.agg(
+일관객합계=("일관객", "sum"),
+TOP10등장일수=("날짜", "nunique")
+)
+.reset_index()
+)
+
+# 일관객 합계가 많은 순서로 TOP 10 선정
+
+top10_movies = (
+movie_summary
+.sort_values("일관객합계", ascending=False)
+.head(10)
+.sort_values("일관객합계", ascending=True)
+)
+
+# 가로 막대그래프 만들기
+
+fig4 = px.bar(
+top10_movies,
+x="일관객합계",
+y="영화명",
+orientation="h",
+title="이 기간 일관객 합계 TOP 10",
+labels={
+"일관객합계": "일관객 합계",
+"영화명": "영화명"
+},
+hover_data={
+"일관객합계": ":,",
+"TOP10등장일수": True
+}
+)
+
+# 마우스를 올렸을 때 표시할 내용
+
+fig4.update_traces(
+hovertemplate=(
+"<b>%{y}</b><br>"
+"일관객 합계: %{x:,}명<br>"
+"10위권에 든 날: %{customdata[0]}일"
+"<extra></extra>"
+)
+)
+
+fig4.update_layout(
+xaxis_title="이 기간 일관객 합계(명)",
+yaxis_title="영화명",
+showlegend=False
+)
+
+st.plotly_chart(
+fig4,
+use_container_width=True
+)
+
+st.info(
+"💡 이 그래프로 알 수 있는 것: 이 기간 동안 가장 많은 관객을 모은 영화와, 각 영화가 박스오피스 TOP 10에 얼마나 오래 등장했는지를 함께 비교할 수 있습니다."
+)
+
+
+

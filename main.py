@@ -37,10 +37,19 @@ df = pd.read_csv(DATA_URL)
 
 ```
 # 날짜를 실제 날짜(datetime) 형식으로 변환
-df["날짜"] = pd.to_datetime(df["날짜"].astype(str), format="%Y%m%d")
+df["날짜"] = pd.to_datetime(
+    df["날짜"].astype(str),
+    format="%Y%m%d"
+)
 
 # 숫자형 데이터 변환
-numeric_columns = ["순위", "일관객", "누적관객", "스크린수", "상영횟수"]
+numeric_columns = [
+    "순위",
+    "일관객",
+    "누적관객",
+    "스크린수",
+    "상영횟수"
+]
 
 for col in numeric_columns:
     df[col] = pd.to_numeric(df[col], errors="coerce")
@@ -66,7 +75,9 @@ st.divider()
 
 st.header("📋 데이터 살펴보기")
 
-st.write(f"전체 데이터는 **{len(df):,}개**의 박스오피스 기록으로 이루어져 있습니다.")
+st.write(
+f"전체 데이터는 **{len(df):,}개**의 박스오피스 기록으로 이루어져 있습니다."
+)
 
 with st.expander("데이터 미리 보기"):
 st.dataframe(df.head(20), use_container_width=True)
@@ -81,7 +92,9 @@ st.divider()
 
 st.header("📈 그래프 1. 시간에 따른 영화별 일관객 변화")
 
-st.write("드롭다운에서 영화를 선택하면 날짜별 일관객 변화를 확인할 수 있습니다.")
+st.write(
+"드롭다운에서 영화를 선택하면 날짜별 일관객 변화를 확인할 수 있습니다."
+)
 
 # 영화 목록 만들기
 
@@ -111,17 +124,17 @@ title=f"🎬 {selected_movie}의 날짜별 일관객 변화",
 labels={
 "날짜": "날짜",
 "일관객": "일관객 수"
-},
-hover_data={
-"날짜": "|%Y-%m-%d",
-"일관객": ":,"
 }
 )
 
+# 마우스를 올렸을 때 표시되는 내용 설정
+
 fig.update_traces(
-hovertemplate="<b>날짜</b>: %{x|%Y-%m-%d}<br>"
+hovertemplate=(
+"<b>날짜</b>: %{x|%Y-%m-%d}<br>"
 "<b>관객수</b>: %{y:,}명"
 "<extra></extra>"
+)
 )
 
 fig.update_layout(
@@ -130,7 +143,12 @@ xaxis_title="날짜",
 yaxis_title="일관객 수(명)"
 )
 
-st.plotly_chart(fig, use_container_width=True)
+# 그래프 표시
+
+st.plotly_chart(
+fig,
+use_container_width=True
+)
 
 # --------------------------------------------------
 
@@ -153,7 +171,9 @@ st.divider()
 
 st.header("📊 그래프 2. 다음 그래프")
 
-st.write("이곳에는 앞으로 새로운 시간 관련 그래프를 추가할 수 있습니다.")
+st.write(
+"이곳에는 앞으로 새로운 시간 관련 그래프를 추가할 수 있습니다."
+)
 
 st.info(
 "💡 이 그래프로 알 수 있는 것: "
@@ -170,7 +190,9 @@ st.divider()
 
 st.header("📊 그래프 3. 다음 그래프")
 
-st.write("이곳에도 새로운 그래프를 추가할 수 있습니다.")
+st.write(
+"이곳에도 새로운 그래프를 추가할 수 있습니다."
+)
 
 st.info(
 "💡 이 그래프로 알 수 있는 것: "

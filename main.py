@@ -473,3 +473,107 @@ st.dataframe(
     top10_display,
     use_container_width=True
 )
+# ==================================================
+
+# 그래프 5
+
+# ==================================================
+
+st.divider()
+
+st.header("🔥 그래프 5. 월 × 요일별 일관객 히트맵")
+
+st.write(
+"월과 요일별로 일관객을 모두 합쳐, 어느 시기의 관객이 많았는지 색의 진하기로 비교합니다."
+)
+
+# 날짜에서 월과 요일 추출
+
+heatmap_df = df.copy()
+
+heatmap_df["월"] = heatmap_df["날짜"].dt.month
+
+weekday_names = [
+"월요일",
+"화요일",
+"수요일",
+"목요일",
+"금요일",
+"토요일",
+"일요일"
+]
+
+heatmap_df["요일번호"] = heatmap_df["날짜"].dt.dayofweek
+heatmap_df["요일"] = heatmap_df["요일번호"].map(
+dict(enumerate(weekday_names))
+)
+
+# 월 × 요일별 일관객 합계
+
+monthly_weekday = (
+heatmap_df
+.groupby(["월", "요일번호", "요일"])["일관객"]
+.sum()
+.reset_index()
+)
+
+# 월과 요일 순서대로 정렬
+
+monthly_weekday = monthly_weekday.sort_values(
+["월", "요일번호"]
+)
+
+# 히트맵용 표 만들기
+
+heatmap_table = monthly_weekday.pivot(
+index="월",
+columns="요일",
+values="일관객"
+)
+
+# 요일 순서를 월요일 → 일요일로 고정
+
+heatmap_table = heatmap_table.reindex(
+columns=weekday_names
+)
+
+# 히트맵 만들기
+
+fig5 = px.imshow(
+heatmap_table,
+labels={
+"x": "요일",
+"y": "월",
+"color": "일관객 합계"
+},
+x=weekday_names,
+y=heatmap_table.index,
+aspect="auto",
+color_continuous_scale="Blues"
+)
+
+fig5.update_layout(
+title="월 × 요일별 일관객 합계",
+xaxis_title="요일",
+yaxis_title="월",
+coloraxis_colorbar_title="관객 수"
+)
+
+# 마우스를 올렸을 때 표시
+
+fig5.update_traces(
+hovertemplate=(
+"<b>%{y}월 %{x}</b><br>"
+"일관객 합계: %{z:,}명"
+"<extra></extra>"
+)
+)
+
+st.plotly_chart(
+fig5,
+use_container_width=True
+)
+
+st.info(
+"💡 이 그래프로 알 수 있는 것: 어느 월의 어떤 요일에 영화 관객이 많이 몰렸는지 색의 진하기를 통해 한눈에 비교할 수 있습니다."
+)
